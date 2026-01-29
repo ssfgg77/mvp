@@ -11,7 +11,20 @@
     <code th:text="'/api/accounts/' + ${account.id} + '/positions'">/api/...</code>
   </p>
   <article>
-    <p>This page is intentionally minimal in the skeleton.</p>
+    <button type="button" onclick="loadSnapshot()">Load snapshot</button>
+    <p id="snapshotMeta"></p>
+    <pre id="snapshotOut" style="white-space:pre-wrap;"></pre>
   </article>
+
+  <script th:inline="javascript">
+    const accountId = [[${account.id}]];
+    async function loadSnapshot() {
+      const res = await fetch(`/api/accounts/${accountId}/positions`);
+      const json = await res.json();
+      const meta = document.getElementById('snapshotMeta');
+      meta.textContent = `Snapshot: ${json.snapshotTimestamp || 'n/a'} | Stale: ${json.stale}`;
+      document.getElementById('snapshotOut').textContent = JSON.stringify(json.positions, null, 2);
+    }
+  </script>
 </section>
 </html>

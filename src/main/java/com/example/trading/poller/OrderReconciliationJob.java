@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class OrderReconciliationJob {
   private final OAuth2AuthorizedClientService authorizedClients;
 
   private final long intervalMs;
+  private final Map<Long, Instant> rateLimitBackoffUntil = new ConcurrentHashMap<>();
   public OrderReconciliationJob(
       TradeOrderRepository orders,
       ExecutionFillRepository fills,
@@ -66,6 +68,11 @@ public class OrderReconciliationJob {
       var user = entry.getKey();
       var userOrders = entry.getValue();
 
+      Instant backoffUntil = rateLimitBackoffUntil.get(user.getId());
+      if (backoffUntil != null && backoffUntil.isAfter(Instant.now())) {
+        continue;
+      }
+
       var client = authorizedClients.loadAuthorizedClient("schwab", user.getUsername());
       if (client == null || client.getAccessToken() == null) {
         continue;
@@ -84,6 +91,11 @@ public class OrderReconciliationJob {
           );
           reconcileOrder(order, status);
         } catch (IllegalStateException e) {
+          if ("Rate limited".equalsIgnoreCase(e.getMessage())) {
+            rateLimitBackoffUntil.put(user.getId(), Instant.now().plusSeconds(30));
+            log.warn("Rate limited for user={}, skipping remaining orders this cycle", user.getUsername());
+            break;
+          }
           log.info("Order reconciliation failed user={} order={} reason={}",
               user.getUsername(), order.getId(), e.getMessage());
         } catch (Exception e) {

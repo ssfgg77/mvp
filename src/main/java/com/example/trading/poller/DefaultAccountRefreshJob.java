@@ -62,15 +62,23 @@ public class DefaultAccountRefreshJob {
       String token = client.getAccessToken().getTokenValue();
       var acc = s.getDefaultSchwabAccount();
 
-      // TODO: implement API call to fetch balances+positions
-      // var snap = schwab.getDefaultAccountSnapshot(token, acc.getSchwabAccountRef());
-      // acc.setCashBalance(snap.cashBalance());
-      // acc.setEquityValue(snap.equityValue());
-      // acc.setLastRefreshedAt(Instant.now());
-      // accounts.save(acc);
-      // snapshots.put(user.getId(), acc.getId(), snap.positionsPayload());
+      try {
+        var snap = schwab.getDefaultAccountSnapshot(token, acc.getSchwabAccountRef());
+        acc.setCashBalance(snap.cashBalance());
+        acc.setEquityValue(snap.equityValue());
+        acc.setLastRefreshedAt(Instant.now());
+        accounts.save(acc);
+        snapshots.put(user.getId(), acc.getId(), snap.positionsPayload());
 
-      log.debug("DefaultAccountRefreshJob tick user={} account={} at {}", user.getUsername(), acc.getId(), Instant.now());
+        log.debug("DefaultAccountRefreshJob refreshed user={} account={} at {}",
+            user.getUsername(), acc.getId(), Instant.now());
+      } catch (IllegalStateException e) {
+        log.info("DefaultAccountRefreshJob failed user={} account={} reason={}",
+            user.getUsername(), acc.getId(), e.getMessage());
+      } catch (Exception e) {
+        log.info("DefaultAccountRefreshJob failed user={} account={}",
+            user.getUsername(), acc.getId(), e);
+      }
     }
   }
 }

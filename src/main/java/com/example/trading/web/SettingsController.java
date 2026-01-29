@@ -18,10 +18,16 @@ public class SettingsController {
   private final UserSettingsService settings;
   private final AccountSyncService accountSync;
 
-  public SettingsController(CurrentUserService currentUser, SchwabAccountRepository accounts, UserSettingsService settings) {
+  public SettingsController(
+      CurrentUserService currentUser,
+      SchwabAccountRepository accounts,
+      UserSettingsService settings,
+      AccountSyncService accountSync
+  ) {
     this.currentUser = currentUser;
     this.accounts = accounts;
     this.settings = settings;
+    this.accountSync = accountSync;
   }
 
   @GetMapping("/settings")
@@ -42,18 +48,17 @@ public class SettingsController {
     return "redirect:/settings?saved";
   }
 
-
-@PostMapping("/settings/sync-accounts")
-public String syncAccounts(Authentication auth) {
-  AppUser user = currentUser.requireUser(auth);
-  try {
-    accountSync.syncFromSchwab(user, auth);
-  } catch (UnsupportedOperationException e) {
-    return "redirect:/settings?syncError=notImplemented";
-  } catch (Exception e) {
-    return "redirect:/settings?syncError=failed";
+  @PostMapping("/settings/sync-accounts")
+  public String syncAccounts(Authentication auth) {
+    AppUser user = currentUser.requireUser(auth);
+    try {
+      accountSync.syncFromSchwab(user, auth);
+    } catch (UnsupportedOperationException e) {
+      return "redirect:/settings?syncError=notImplemented";
+    } catch (Exception e) {
+      return "redirect:/settings?syncError=failed";
+    }
+    return "redirect:/settings?synced";
   }
-  return "redirect:/settings?synced";
-}
 
 }

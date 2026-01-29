@@ -24,7 +24,8 @@ public class DashboardController {
       CurrentUserService currentUser,
       OAuth2AuthorizedClientService authorizedClients,
       SchwabAccountRepository accounts,
-      UserSettingsService settings
+      UserSettingsService settings,
+      AccountSyncService accountSync
   ) {
     this.currentUser = currentUser;
     this.authorizedClients = authorizedClients;

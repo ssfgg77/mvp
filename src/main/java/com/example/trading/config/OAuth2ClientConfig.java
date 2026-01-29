@@ -1,8 +1,8 @@
 package com.example.trading.config;
 
-import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -16,10 +16,10 @@ public class OAuth2ClientConfig {
 
   @Bean
   public OAuth2AuthorizedClientService authorizedClientService(
-      DataSource dataSource,
+      JdbcOperations jdbcOperations,
       ClientRegistrationRepository clientRegistrationRepository
   ) {
-    return new JdbcOAuth2AuthorizedClientService(dataSource, clientRegistrationRepository);
+    return new JdbcOAuth2AuthorizedClientService(jdbcOperations, clientRegistrationRepository);
   }
 
   @Bean

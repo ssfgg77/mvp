@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrderService {
 
+  private static final int MAX_ORDER_QUANTITY = 10000;
+
   private final CurrentUserService currentUser;
   private final UserSettingsService settings;
   private final SchwabAccountRepository accounts;
@@ -56,7 +58,7 @@ public class OrderService {
   public PlaceOrderResponse placeOrder(String idempotencyKey, PlaceOrderRequest req, Authentication auth) {
     AppUser user = currentUser.requireUser(auth);
 
-    // TODO: Validate req fields + risk checks (per plan/design)
+    NormalizedOrder normalized = validate(req);
     String fingerprint = fingerprint(req);
     String keyHash = sha256Hex(idempotencyKey);
 
@@ -80,11 +82,11 @@ public class OrderService {
     o.setUser(user);
     o.setSchwabAccount(account);
     o.setClientOrderId("cli-" + UUID.randomUUID());
-    o.setSymbol(req.symbol);
-    o.setQuantity(req.quantity == null ? 0 : req.quantity);
-    o.setSide(TradeOrder.Side.valueOf(req.side));
-    o.setOrderType(TradeOrder.OrderType.valueOf(req.orderType));
-    o.setLimitPrice(req.limitPrice);
+    o.setSymbol(normalized.symbol());
+    o.setQuantity(normalized.quantity());
+    o.setSide(TradeOrder.Side.valueOf(normalized.side()));
+    o.setOrderType(TradeOrder.OrderType.valueOf(normalized.orderType()));
+    o.setLimitPrice(normalized.limitPrice());
     o.setStatus(TradeOrder.Status.NEW);
     orders.save(o);
 
@@ -101,7 +103,13 @@ public class OrderService {
     PlaceOrderResultDto result = schwab.placeOrder(
         token,
         account.getSchwabAccountRef(),
-        new PlaceOrderRequestDto(req.symbol, req.side, req.quantity, req.orderType, req.limitPrice)
+        new PlaceOrderRequestDto(
+            normalized.symbol(),
+            normalized.side(),
+            normalized.quantity(),
+            normalized.orderType(),
+            normalized.limitPrice()
+        )
     );
 
     o.setSchwabOrderId(result.schwabOrderId());
@@ -149,8 +157,13 @@ public class OrderService {
   }
 
   private static String fingerprint(PlaceOrderRequest req) {
+    if (req == null) return "";
     // stable fingerprint: symbol|side|qty|type|limit|accountOverride
-    return (req.symbol + "|" + req.side + "|" + req.quantity + "|" + req.orderType + "|" +
+    String symbol = normalizeSymbol(req.symbol);
+    String side = normalizeEnum(req.side);
+    String orderType = normalizeEnum(req.orderType);
+    String qty = req.quantity == null ? "" : req.quantity.toString();
+    return (symbol + "|" + side + "|" + qty + "|" + orderType + "|" +
         (req.limitPrice == null ? "" : req.limitPrice.toPlainString()) + "|" + (req.accountId == null ? "" : req.accountId));
   }
 
@@ -172,4 +185,50 @@ public class OrderService {
       throw new RuntimeException(e);
     }
   }
+
+  private static NormalizedOrder validate(PlaceOrderRequest req) {
+    if (req == null) throw new IllegalStateException("Order request required");
+    String symbol = normalizeSymbol(req.symbol);
+    if (symbol == null || symbol.isBlank()) {
+      throw new IllegalStateException("Symbol is required");
+    }
+    String side = normalizeEnum(req.side);
+    if (!"BUY".equals(side) && !"SELL".equals(side)) {
+      throw new IllegalStateException("Side must be BUY or SELL");
+    }
+    if (req.quantity == null || req.quantity <= 0) {
+      throw new IllegalStateException("Quantity must be > 0");
+    }
+    if (req.quantity > MAX_ORDER_QUANTITY) {
+      throw new IllegalStateException("Quantity exceeds max per order");
+    }
+    String orderType = normalizeEnum(req.orderType);
+    if (!"MARKET".equals(orderType) && !"LIMIT".equals(orderType)) {
+      throw new IllegalStateException("Order type must be MARKET or LIMIT");
+    }
+    if ("LIMIT".equals(orderType)) {
+      if (req.limitPrice == null || req.limitPrice.signum() <= 0) {
+        throw new IllegalStateException("Limit price required for LIMIT orders");
+      }
+    }
+    return new NormalizedOrder(symbol, side, orderType, req.quantity, req.limitPrice);
+  }
+
+  private static String normalizeSymbol(String symbol) {
+    if (symbol == null) return null;
+    return symbol.trim().toUpperCase();
+  }
+
+  private static String normalizeEnum(String value) {
+    if (value == null) return null;
+    return value.trim().toUpperCase();
+  }
+
+  private record NormalizedOrder(
+      String symbol,
+      String side,
+      String orderType,
+      int quantity,
+      java.math.BigDecimal limitPrice
+  ) {}
 }

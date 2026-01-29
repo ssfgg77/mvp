@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <div th:fragment="table" id="ordersTable"
+       hx-get="/orders/fragment?status=OPEN"
+       hx-trigger="every 5s"
+       hx-swap="outerHTML">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th><th>Status</th><th>Updated</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="o : ${orders}">
+          <td><a th:href="@{'/orders/' + ${o.id}}" th:text="${o.id}">id</a></td>
+          <td th:text="${o.symbol}">SYM</td>
+          <td th:text="${o.side}">BUY</td>
+          <td th:text="${o.orderType}">MARKET</td>
+          <td th:text="${o.quantity}">1</td>
+          <td th:text="${o.status}">OPEN</td>
+          <td th:text="${o.updatedAt}">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</html>

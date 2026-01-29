@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Register</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <main class="container">
+    <h2>Register</h2>
+    <article th:if="${error}" style="border-left:4px solid #b00;">
+      <strong>Error:</strong> <span th:text="${error}">error</span>
+    </article>
+    <form method="post" action="/register" th:object="${form}">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <label>Username
+        <input th:field="*{username}" required />
+      </label>
+      <label>Email
+        <input th:field="*{email}" type="email" required />
+      </label>
+      <label>Password (min 8 chars)
+        <input th:field="*{password}" type="password" required />
+      </label>
+      <button type="submit">Create account</button>
+    </form>
+    <p><a href="/login">Back to login</a></p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: content}">
+<section>
+  <h2>Accounts</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Nickname</th><th>Type</th><th>Cash</th><th>Equity</th><th>Last Refreshed</th></tr>
+    </thead>
+    <tbody>
+      <tr th:each="a : ${accounts}">
+        <td th:text="${a.id}">1</td>
+        <td><a th:href="@{'/accounts/' + ${a.id}}" th:text="${a.nickname} ?: ${a.schwabAccountRef}">acc</a></td>
+        <td th:text="${a.accountType}">type</td>
+        <td th:text="${a.cashBalance}">0</td>
+        <td th:text="${a.equityValue}">0</td>
+        <td th:text="${a.lastRefreshedAt}">-</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+</html>

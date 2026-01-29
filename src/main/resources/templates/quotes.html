@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: content}">
+<section>
+  <h2>Quotes</h2>
+  <form id="quotesForm">
+    <label>Symbols (comma separated)
+      <input name="symbols" th:value="${symbols}" placeholder="AAPL,TSLA" />
+    </label>
+    <button type="button" onclick="fetchQuotes()">Fetch</button>
+  </form>
+  <pre id="out" style="white-space:pre-wrap;"></pre>
+
+  <script>
+    async function fetchQuotes() {
+      const symbols = document.querySelector('input[name="symbols"]').value;
+      const res = await fetch('/api/quotes?symbols=' + encodeURIComponent(symbols));
+      const json = await res.json();
+      document.getElementById('out').textContent = JSON.stringify(json, null, 2);
+    }
+  </script>
+</section>
+</html>

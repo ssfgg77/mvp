@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: content}">
+<section>
+  <h2>Settings</h2>
+
+  <article th:if="${chooseDefault}">
+    <strong>Please select your default Schwab account to continue.</strong>
+  </article>
+
+  <article>
+    <h3>Default Schwab Account</h3>
+    <form method="post" action="/settings/default-account">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <select name="accountId" required>
+        <option th:each="a : ${accounts}"
+                th:value="${a.id}"
+                th:selected="${settings.defaultSchwabAccount != null and settings.defaultSchwabAccount.id == a.id}"
+                th:text="${a.nickname} ?: ${a.schwabAccountRef}">acc</option>
+      </select>
+      <button type="submit">Save</button>
+    </form>
+  </article>
+
+<article>
+  <h3>Schwab Accounts</h3>
+  <p>Pull the latest Schwab account list and upsert into the local database.</p>
+  <form method="post" action="/settings/sync-accounts">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit" class="secondary">Sync Accounts Now</button>
+  </form>
+  <p th:if="${param.synced}"><strong>Accounts synced.</strong></p>
+  <p th:if="${param.syncError}"><strong>Sync failed:</strong> <span th:text="${param.syncError}">error</span></p>
+</article>
+
+<p th:if="${param.saved}">Saved.</p>
+
+</section>
+</html>

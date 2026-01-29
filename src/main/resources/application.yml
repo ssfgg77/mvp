@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          schwab:
+            client-id: ${SCHWAB_CLIENT_ID}
+            client-secret: ${SCHWAB_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: ${SCHWAB_SCOPES}
+        provider:
+          schwab:
+            authorization-uri: ${SCHWAB_AUTH_URL}
+            token-uri: ${SCHWAB_TOKEN_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+app:
+  polling:
+    orders-ms: ${APP_POLL_ORDERS_MS:5000}
+  refresh:
+    default-account-ms: ${APP_REFRESH_DEFAULT_ACCOUNT_MS:30000}
+  snapshot:
+    ttl-ms: ${APP_SNAPSHOT_TTL_MS:300000}
+  schwab:
+    api-base-url: ${SCHWAB_API_BASE_URL}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO

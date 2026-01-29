@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: content}">
+<section>
+  <h2>Positions</h2>
+  <p>
+    Account: <strong th:text="${account.nickname} ?: ${account.schwabAccountRef}">acc</strong>
+  </p>
+  <p>
+    Positions are served from the 30s refresh snapshot store (not persisted).
+    Use the API endpoint to view raw snapshot payload:
+    <code th:text="'/api/accounts/' + ${account.id} + '/positions'">/api/...</code>
+  </p>
+  <article>
+    <p>This page is intentionally minimal in the skeleton.</p>
+  </article>
+</section>
+</html>

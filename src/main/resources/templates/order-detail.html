@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: content}">
+<section>
+  <h2>Order Detail</h2>
+  <article>
+    <p><strong>ID:</strong> <span th:text="${order.id}">id</span></p>
+    <p><strong>Status:</strong> <span th:text="${order.status}">OPEN</span></p>
+    <p><strong>Symbol:</strong> <span th:text="${order.symbol}">AAPL</span></p>
+    <p><strong>Side:</strong> <span th:text="${order.side}">BUY</span></p>
+    <p><strong>Type:</strong> <span th:text="${order.orderType}">MARKET</span></p>
+    <p><strong>Qty:</strong> <span th:text="${order.quantity}">1</span></p>
+    <p><strong>Limit:</strong> <span th:text="${order.limitPrice}">-</span></p>
+    <p><strong>Schwab Order ID:</strong> <span th:text="${order.schwabOrderId}">-</span></p>
+  </article>
+
+  <form method="post" th:action="@{'/orders/' + ${order.id} + '/cancel'}" onsubmit="return confirm('Cancel this order?')">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit" class="secondary">Cancel Order</button>
+  </form>
+
+  <h3>Fills</h3>
+  <table>
+    <thead><tr><th>Time</th><th>Qty</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr th:each="f : ${fills}">
+        <td th:text="${f.execTime}">-</td>
+        <td th:text="${f.quantity}">-</td>
+        <td th:text="${f.price}">-</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+</html>

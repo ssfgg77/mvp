@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: content}">
+<section>
+  <h2>Orders</h2>
+  <p><a href="/orders/new" role="button">New Order</a></p>
+
+  <div id="ordersTable"
+       hx-get="/orders/fragment?status=OPEN"
+       hx-trigger="load, every 5s"
+       hx-swap="outerHTML">
+    Loading...
+  </div>
+</section>
+</html>

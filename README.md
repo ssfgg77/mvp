@@ -46,6 +46,30 @@ mvn spring-boot:run
 App:
 - Web UI: http://localhost:8080/
 
+## HTTPS / SSL (optional)
+If your Schwab app configuration requires an `https://...` redirect URI, enable SSL in Spring Boot.
+
+1) Create `./config` (ignored by git) and generate a PKCS12 keystore:
+```bash
+keytool -genkeypair -storetype PKCS12 -keystore config/keystore.p12 -storepass change-me -keypass change-me -alias schwab -keyalg RSA -keysize 2048 -validity 3650 -ext "SAN=dns:localhost"
+```
+
+2) Configure SSL (either via env vars or `config/application.yml`).
+
+Example `config/application.yml`:
+```yml
+server:
+  ssl:
+    enabled: true
+    key-store: file:config/keystore.p12
+    key-store-type: PKCS12
+    key-store-password: change-me
+    key-password: change-me
+    key-alias: schwab
+```
+
+3) Start the app and use `https://<host>:<port>/`.
+
 ### 4) Connect flow (UI)
 1) Register at `/register`
 2) Log in at `/login`

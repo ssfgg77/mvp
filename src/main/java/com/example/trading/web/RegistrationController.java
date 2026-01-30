@@ -19,13 +19,13 @@ public class RegistrationController {
     this.encoder = encoder;
   }
 
-  @GetMapping("/register")
+  @GetMapping({"/register", "/login/register"})
   public String registerForm(Model model) {
     model.addAttribute("form", new RegisterForm());
     return "register";
   }
 
-  @PostMapping("/register")
+  @PostMapping({"/register", "/login/register"})
   public String register(@ModelAttribute("form") RegisterForm form, Model model) {
     if (form.username == null || form.username.isBlank()
         || form.email == null || form.email.isBlank()

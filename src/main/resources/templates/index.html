@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Welcome</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Schwab Trading System</h1>
+    <p>Use the links below to navigate the web UI.</p>
+
+    <article>
+      <h3>Account</h3>
+      <ul>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/login/register">Register</a></li>
+        <li><a href="/logout">Logout (POST)</a></li>
+      </ul>
+      <form method="post" action="/logout">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit">Logout</button>
+      </form>
+    </article>
+
+    <article>
+      <h3>App</h3>
+      <ul>
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/settings">Settings</a></li>
+        <li><a href="/quotes">Quotes</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/orders/new">New Order</a></li>
+      </ul>
+    </article>
+  </main>
+</body>
+</html>

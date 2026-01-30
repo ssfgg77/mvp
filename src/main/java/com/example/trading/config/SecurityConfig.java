@@ -22,6 +22,8 @@ public class SecurityConfig {
     http
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
+                "/home",
+                "/home/**",
                 "/register",
                 "/register/**",
                 "/login",

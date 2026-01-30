@@ -37,6 +37,7 @@ Optional (defaults shown):
 - `APP_REFRESH_DEFAULT_ACCOUNT_MS=30000`
 - `APP_SNAPSHOT_TTL_MS=300000`
 - `APP_BASE_URL` (useful behind reverse proxies for stable redirect URIs)
+- `SCHWAB_REDIRECT_URI` (defaults to `https://myschwab.xsbngroup.com:8080/oauth/callback`)
 
 ### 3) Run
 ```bash

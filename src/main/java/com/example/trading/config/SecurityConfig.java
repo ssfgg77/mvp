@@ -38,6 +38,9 @@ public class SecurityConfig {
             .authorizationEndpoint(endpoint -> endpoint
                 .authorizationRequestResolver(authorizationRequestResolver)
             )
+            .redirectionEndpoint(endpoint -> endpoint
+                .baseUri("/oauth/callback")
+            )
         );
 
     return http.build();
